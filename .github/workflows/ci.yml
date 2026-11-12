@@ -1,0 +1,35 @@
+# Build sc-api-internal and sc-api with JDK 11 (the repository has no tests).
+# The contract executor's CI builds this repository at the commit its build.yml pins.
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      # actions pinned by commit (tags can move)
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad  # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: maven
+
+      - name: Build
+        run: mvn -B install  # runs the tests too, if any are added

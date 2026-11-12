@@ -19,7 +19,21 @@ Related repositories of [CreditsCommunity](https://github.com/CreditsCommunity):
 
 `master`, `dev` and `build/reproducible-1518` point to the same commit (`677c567f`, the commit
 contract-executor build 1518 is built from). `mvn-repo` holds Maven artifacts published by the
-original project. There is no CI in this repository: the executor's CI builds it at a pinned commit.
+original project. The executor's CI builds this repository at a pinned commit (`677c567f`).
+
+## CI
+
+`.github/workflows/ci.yml`: `mvn -B install` with JDK 11 on every push to `master` and every pull
+request. It only shows that the jars build; what matters for consensus is the executor's CI, which
+compares every contract result with build 1518.
+
+## Known limitation: `v3` is not exported
+
+`sc-api/src/main/java/module-info.java` does not export `com.credits.scapi.v3`, as in build 1518.
+Leave it so. These classes are part of the contract runtime: exporting a package changes what a
+contract can compile against, so a contract could compile on a community executor and fail on an
+official 1518 one, a divergence between nodes at deploy time. Any change to the exported packages
+needs the same coordinated, height-gated upgrade as any consensus change.
 
 ## Platform constraints
 
